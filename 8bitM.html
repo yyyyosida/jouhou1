@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>8 x 1-bit メモリユニット</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      text-align: center;
+    }
+    canvas {
+      background-color: white;
+      border: 1px solid #ccc;
+      margin-top: 10px;
+    }
+    .controls {
+      margin: 10px;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+    .controls label {
+      font-size: 16px;
+      margin: 4px 8px;
+    }
+  </style>
+</head>
+<body>
+  <h2>8 x 1-bit Memory Units</h2>
+  <div class="controls">
+    <label><input type="checkbox" id="B" onchange="update()"> B (共有)</label>
+    <label><input type="checkbox" id="A1" onchange="update()"> A1</label>
+    <label><input type="checkbox" id="A2" onchange="update()"> A2</label>
+    <label><input type="checkbox" id="A3" onchange="update()"> A3</label>
+    <label><input type="checkbox" id="A4" onchange="update()"> A4</label>
+    <label><input type="checkbox" id="A5" onchange="update()"> A5</label>
+    <label><input type="checkbox" id="A6" onchange="update()"> A6</label>
+    <label><input type="checkbox" id="A7" onchange="update()"> A7</label>
+    <label><input type="checkbox" id="A8" onchange="update()"> A8</label>
+  </div>
+  <canvas id="canvas" width="600" height="800"></canvas>
+
+  <script>
+    const canvas = document.getElementById("canvas");
+    const ctx = canvas.getContext("2d");
+
+    const color = v => v ? "red" : "black";
+    const bitText = v => v ? "1" : "0";
+
+    const prev_Q = Array(8).fill(true);
+
+    function drawMemoryBox(x, y, label) {
+      ctx.fillStyle = "#eee";
+      ctx.strokeStyle = "black";
+      ctx.lineWidth = 2;
+      ctx.fillRect(x, y, 200, 40); // 高さを縮小
+      ctx.strokeRect(x, y, 200, 40);
+      ctx.fillStyle = "black";
+      ctx.font = "12px sans-serif";
+      ctx.fillText(label, x + 70, y + 25);
+    }
+
+    function drawLine(path, isOn, width = 3) {
+      ctx.strokeStyle = color(isOn);
+      ctx.lineWidth = width;
+      ctx.beginPath();
+      ctx.moveTo(...path[0]);
+      for (let i = 1; i < path.length; i++) {
+        ctx.lineTo(...path[i]);
+      }
+      ctx.stroke();
+    }
+
+    function drawBit(x, y, value) {
+      ctx.fillStyle = color(value);
+      ctx.font = "14px sans-serif";
+      ctx.fillText(bitText(value), x, y);
+    }
+
+    function update() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      const b = document.getElementById("B").checked;
+      const spacing = 90;
+
+      for (let i = 0; i < 8; i++) {
+        const a = document.getElementById(`A${i+1}`).checked;
+
+        let O1 = !(a && b);
+        let O2 = !(b && O1);
+        let Q = prev_Q[i];
+        let O4;
+        for (let j = 0; j < 5; j++) {
+          O4 = !(O1 && Q);
+          Q = !(O2 && O4);
+        }
+        prev_Q[i] = Q;
+
+        const y = 40 + i * spacing;
+
+        // A入力線
+        drawLine([[0, y], [100, y]], a);
+        drawBit(10, y - 10, a);
+
+        // メモリブロック
+        drawMemoryBox(100, y - 20, "1bitM");
+
+        // 出力線
+        drawLine([[300, y], [400, y]], O4);
+        drawBit(310, y - 10, O4);
+      }
+
+      // B入力（共通）
+      drawLine([[0, 40 + 7 * spacing + 40], [60, 40 + 7 * spacing + 40]], b);
+      for (let i = 0; i < 8; i++) {
+        const ty = 40 + i * spacing + 20;
+        drawLine([[60, 40 + 7 * spacing + 40], [60, ty], [100, ty]], b);
+      }
+    }
+
+    update();
+  </script>
+</body>
+</html>
