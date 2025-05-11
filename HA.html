@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>半加算器シミュレータ（HTML版）</title>
+  <style>
+    body { font-family: Arial, sans-serif; text-align: center; }
+    canvas { border: 1px solid #ccc; background: white; }
+    button { margin: 10px; padding: 10px 20px; font-size: 16px; }
+  </style>
+</head>
+<body>
+
+<h1>半加算器シミュレータ（XOR下・AND上配置）</h1>
+<canvas id="adderCanvas" width="1000" height="600"></canvas>
+<br>
+<button onclick="toggleInput(1)">入力A: OFF</button>
+<button onclick="toggleInput(2)">入力B: OFF</button>
+
+<script>
+  let inputA = false;
+  let inputB = false;
+
+  function toggleInput(n) {
+    if (n === 1) inputA = !inputA;
+    if (n === 2) inputB = !inputB;
+
+    document.querySelectorAll("button")[n - 1].textContent =
+      `入力${n === 1 ? 'A' : 'B'}: ${eval("input" + (n === 1 ? 'A' : 'B')) ? "ON" : "OFF"}`;
+
+    drawAdder();
+  }
+
+  function drawAdder() {
+    const canvas = document.getElementById("adderCanvas");
+    const ctx = canvas.getContext("2d");
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    const onColor = "red";
+    const offColor = "gray";
+    const lw = 10;
+
+    const colorA = inputA ? onColor : offColor;
+    const colorB = inputB ? onColor : offColor;
+    const sum = inputA ^ inputB;
+    const carry = inputA && inputB;
+    const colorSum = sum ? onColor : offColor;
+    const colorCarry = carry ? onColor : offColor;
+
+    // 入力線とラベル
+    ctx.strokeStyle = colorA; ctx.lineWidth = lw;
+    ctx.beginPath(); ctx.moveTo(80, 170); ctx.lineTo(400, 170); ctx.stroke();
+    ctx.strokeStyle = colorB;
+    ctx.beginPath(); ctx.moveTo(80, 370); ctx.lineTo(400, 370); ctx.stroke();
+    ctx.fillStyle = "black"; ctx.font = "16px Arial";
+    ctx.fillText("A", 50, 170);
+    ctx.fillText("B", 50, 370);
+
+    // ANDゲート（上）
+    ctx.strokeStyle = "black"; ctx.lineWidth = 4;
+    ctx.beginPath();
+    ctx.moveTo(400, 120); ctx.lineTo(400, 220);
+    ctx.lineTo(450, 220); ctx.lineTo(450, 120);
+    ctx.closePath(); ctx.stroke();
+    ctx.beginPath();
+    ctx.arc(475, 170, 25, -Math.PI / 2, Math.PI / 2);
+    ctx.stroke();
+    ctx.strokeStyle = colorCarry; ctx.lineWidth = lw;
+    ctx.beginPath(); ctx.moveTo(500, 170); ctx.lineTo(680, 170); ctx.stroke();
+    ctx.fillStyle = "black";
+    ctx.fillText("CARRY(桁上がり)", 750, 170);
+    ctx.fillStyle = colorCarry;
+    ctx.font = "32px Arial";
+    ctx.fillText(carry ? "1" : "0", 700, 130);
+
+    // XORゲート（下）
+    ctx.strokeStyle = "black"; ctx.lineWidth = 4;
+    ctx.beginPath();
+    ctx.moveTo(400, 320);
+    ctx.bezierCurveTo(430, 340, 430, 400, 400, 420);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(370, 320);
+    ctx.bezierCurveTo(400, 340, 400, 400, 370, 420);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(400, 320);
+    ctx.bezierCurveTo(540, 340, 540, 400, 400, 420);
+    ctx.stroke();
+    ctx.strokeStyle = colorSum; ctx.lineWidth = lw;
+    ctx.beginPath(); ctx.moveTo(470, 370); ctx.lineTo(680, 370); ctx.stroke();
+    ctx.fillStyle = "black"; ctx.font = "16px Arial";
+    ctx.fillText("SUM(合計)", 750, 370);
+    ctx.fillStyle = colorSum;
+    ctx.font = "32px Arial";
+    ctx.fillText(sum ? "1" : "0", 700, 410);
+
+    // 入力値 + 計算式表示
+    ctx.fillStyle = colorA; ctx.font = "50px Arial";
+    ctx.fillText(inputA ? "1" : "0", 310, 500);
+    ctx.fillStyle = "black"; ctx.fillText("+", 350, 500);
+    ctx.fillStyle = colorB; ctx.fillText(inputB ? "1" : "0", 390, 500);
+    ctx.fillStyle = "black"; ctx.fillText("=", 430, 500);
+    ctx.fillStyle = colorCarry; ctx.fillText(carry ? "1" : "0", 470, 500);
+    ctx.fillStyle = colorSum; ctx.fillText(sum ? "1" : "0", 520, 500);
+  }
+
+  drawAdder(); // 初回描画
+</script>
+
+</body>
+</html>
