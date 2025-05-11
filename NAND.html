@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>NANDゲートシミュレータ（MIL記号版）</title>
+  <style>
+    body { font-family: Arial, sans-serif; text-align: center; }
+    canvas { border: 1px solid #ccc; background: white; margin-top: 10px; }
+    button { margin: 10px; padding: 10px 20px; font-size: 16px; }
+  </style>
+</head>
+<body>
+<h1>NANDゲートシミュレータ</h1>
+<canvas id="nandCanvas" width="800" height="400"></canvas><br>
+<button onclick="toggleInput(1)">入力A: OFF</button>
+<button onclick="toggleInput(2)">入力B: OFF</button>
+
+<script>
+  let input1 = false;
+  let input2 = false;
+
+  function toggleInput(n) {
+    if (n === 1) input1 = !input1;
+    if (n === 2) input2 = !input2;
+
+    document.querySelectorAll("button")[n - 1].textContent =
+      `入力${n === 1 ? 'A' : 'B'}: ${eval("input" + n) ? "ON" : "OFF"}`;
+
+    drawGate();
+  }
+
+  function drawGate() {
+    const canvas = document.getElementById("nandCanvas");
+    const ctx = canvas.getContext("2d");
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    const onColor = "red";
+    const offColor = "gray";
+    const lw = 20;
+
+    const color1 = input1 ? onColor : offColor;
+    const color2 = input2 ? onColor : offColor;
+
+    const startX = 80;
+    const y1 = 130, y2 = 270, centerY = 200;
+    const gateLeft = 220, gateRight = 460;
+
+    ctx.lineWidth = lw;
+    ctx.strokeStyle = color1;
+    ctx.beginPath(); ctx.moveTo(startX, y1); ctx.lineTo(gateLeft, y1); ctx.stroke();
+    ctx.strokeStyle = color2;
+    ctx.beginPath(); ctx.moveTo(startX, y2); ctx.lineTo(gateLeft, y2); ctx.stroke();
+
+    ctx.fillStyle = "black";
+    ctx.font = "16px Arial";
+    ctx.fillText("A", 50, y1);
+    ctx.fillText("B", 50, y2);
+
+    // ANDゲート＋反転丸
+    ctx.strokeStyle = "black";
+    ctx.lineWidth = 4;
+    ctx.beginPath(); ctx.moveTo(gateLeft, 100); ctx.lineTo(gateLeft, 300); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(gateLeft, 100); ctx.lineTo(gateRight - 110, 100); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(gateLeft, 300); ctx.lineTo(gateRight - 110, 300); ctx.stroke();
+    ctx.beginPath();
+    ctx.arc((gateLeft + gateRight) / 2, centerY, 100, Math.PI / 2, -Math.PI / 2, true);
+    ctx.stroke();
+
+    // 反転丸
+    ctx.beginPath();
+    ctx.arc(gateRight-5, centerY, 15, 0, Math.PI * 2);
+    ctx.stroke();
+
+    const output = !(input1 && input2);
+    const outputColor = output ? onColor : offColor;
+
+    // 出力線
+    ctx.strokeStyle = outputColor;
+    ctx.lineWidth = lw;
+    ctx.beginPath(); ctx.moveTo(gateRight + 10, centerY); ctx.lineTo(640, centerY); ctx.stroke();
+
+    // ラベル
+    ctx.fillStyle = "black";
+    ctx.font = "16px Arial";
+    ctx.fillText("出力", 680, centerY);
+    ctx.fillStyle = outputColor;
+    ctx.fillText(output ? "ON" : "OFF", 640, centerY + 40);
+  }
+
+  drawGate();
+</script>
+</body>
+</html>
