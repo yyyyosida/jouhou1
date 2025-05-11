@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>XORゲートシミュレータ（HTML版）</title>
+  <style>
+    body { font-family: Arial, sans-serif; text-align: center; }
+    canvas { border: 1px solid #ccc; background: white; }
+    button { margin: 10px; padding: 10px 20px; font-size: 16px; }
+  </style>
+</head>
+<body>
+
+<h1>XORゲートシミュレータ</h1>
+<canvas id="xorCanvas" width="800" height="400"></canvas>
+<br>
+<button onclick="toggleInput(1)">入力A: OFF</button>
+<button onclick="toggleInput(2)">入力B: OFF</button>
+
+<script>
+  let input1 = false;
+  let input2 = false;
+
+  function toggleInput(n) {
+    if (n === 1) input1 = !input1;
+    if (n === 2) input2 = !input2;
+
+    document.querySelectorAll("button")[n - 1].textContent =
+      `入力${n === 1 ? 'A' : 'B'}: ${eval("input" + n) ? "ON" : "OFF"}`;
+
+    drawGate();
+  }
+
+  function drawGate() {
+    const canvas = document.getElementById("xorCanvas");
+    const ctx = canvas.getContext("2d");
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    const onColor = "red";
+    const offColor = "gray";
+    const lw = 20;
+
+    // 入力線
+    ctx.strokeStyle = input1 ? onColor : offColor;
+    ctx.lineWidth = lw;
+    ctx.beginPath();
+    ctx.moveTo(80, 130);
+    ctx.lineTo(195, 130);
+    ctx.stroke();
+
+    ctx.strokeStyle = input2 ? onColor : offColor;
+    ctx.beginPath();
+    ctx.moveTo(80, 270);
+    ctx.lineTo(195, 270);
+    ctx.stroke();
+
+    // 入力ラベル
+    ctx.fillStyle = "black";
+    ctx.font = "16px Arial";
+    ctx.fillText("A", 50, 130);
+    ctx.fillText("B", 50, 270);
+
+    // XORゲート本体（後方カーブ）
+    ctx.strokeStyle = "black";
+    ctx.lineWidth = 4;
+    ctx.beginPath();
+    ctx.moveTo(220, 100);
+    ctx.quadraticCurveTo(250, 200, 220, 300); // 中央湾曲線
+    ctx.stroke();
+
+    // 追加のカーブ（XOR特有）
+    ctx.beginPath();
+    ctx.moveTo(190, 100);
+    ctx.quadraticCurveTo(220, 200, 190, 300); // 後ろのカーブ
+    ctx.stroke();
+
+    // 前方（OR風）カーブ
+    ctx.beginPath();
+    ctx.moveTo(220, 100);
+    ctx.bezierCurveTo(480, 120, 480, 280, 220, 300);
+    ctx.stroke();
+
+    // 出力線
+    const output = (input1 !== input2);
+    const outputColor = output ? onColor : offColor;
+    ctx.strokeStyle = outputColor;
+    ctx.lineWidth = lw;
+    ctx.beginPath();
+    ctx.moveTo(350, 200);
+    ctx.lineTo(500, 200);
+    ctx.stroke();
+
+    // 出力ラベル
+    ctx.fillStyle = "black";
+    ctx.fillText("出力", 540, 200);
+    ctx.fillStyle = outputColor;
+    ctx.fillText(output ? "ON" : "OFF", 500, 240);
+  }
+
+  drawGate(); // 初回描画
+</script>
+
+</body>
+</html>
