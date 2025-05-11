@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>ANDゲートシミュレータ（MIL記号・固定レイアウト）</title>
+  <style>
+    body {
+      text-align: center;
+      font-family: sans-serif;
+    }
+    canvas {
+      border: 1px solid #ccc;
+      background: white;
+      display: block;
+      margin: 0 auto;
+    }
+    .controls {
+      margin-top: 20px;
+    }
+    button {
+      margin: 10px;
+      padding: 10px 20px;
+      font-size: 16px;
+      min-width: 130px; /* 幅を固定してズレを防ぐ */
+    }
+  </style>
+</head>
+<body>
+  <h2>ANDゲートシミュレータ（MIL記号・修正版）</h2>
+
+  <canvas id="gateCanvas" width="800" height="400"></canvas>
+
+  <div class="controls">
+    <button onclick="toggleInput(1)" id="btn1">入力1: OFF</button>
+    <button onclick="toggleInput(2)" id="btn2">入力2: OFF</button>
+  </div>
+
+  <script>
+    const canvas = document.getElementById("gateCanvas");
+    const ctx = canvas.getContext("2d");
+
+    let input1 = false;
+    let input2 = false;
+
+    function playClickSound() {
+      const audio = new Audio("data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEARKwAABCxAgAEABAAZGF0YQAAAAA=");
+      audio.play();
+    }
+
+    function toggleInput(n) {
+      if (n === 1) {
+        input1 = !input1;
+        document.getElementById("btn1").innerText = "入力A: " + (input1 ? "ON" : "OFF");
+      } else {
+        input2 = !input2;
+        document.getElementById("btn2").innerText = "入力B: " + (input2 ? "ON" : "OFF");
+      }
+      playClickSound();
+      drawGate();
+    }
+
+    function drawGate() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      const onColor = "red";
+      const offColor = "gray";
+      const lw = 20;
+
+      // 入力線
+      ctx.strokeStyle = input1 ? onColor : offColor;
+      ctx.lineWidth = lw;
+      ctx.beginPath();
+      ctx.moveTo(100, 120);
+      ctx.lineTo(240, 120);
+      ctx.stroke();
+
+      ctx.strokeStyle = input2 ? onColor : offColor;
+      ctx.beginPath();
+      ctx.moveTo(100, 280);
+      ctx.lineTo(240, 280);
+      ctx.stroke();
+
+      ctx.fillStyle = "black";
+      ctx.font = "16px Arial";
+      ctx.fillText("A", 60, 120);
+      ctx.fillText("B", 60, 280);
+
+      // ANDゲート本体（MIL記号：左角＋右半円）
+      const gateLeft = 240;
+      const gateRight = 360;
+      const gateTop = 80;
+      const gateBottom = 320;
+      const gateCenterY = 200;
+
+      ctx.strokeStyle = "black";
+      ctx.lineWidth = 4;
+      ctx.beginPath();
+      ctx.moveTo(gateLeft, gateTop);
+      ctx.lineTo(gateLeft, gateBottom);
+      ctx.moveTo(gateLeft, gateTop);
+      ctx.lineTo(gateRight, gateTop);
+      ctx.moveTo(gateLeft, gateBottom);
+      ctx.lineTo(gateRight, gateBottom);
+      ctx.stroke();
+
+      ctx.beginPath();
+      ctx.arc(gateRight, gateCenterY, 120, Math.PI * 1.5, Math.PI * 0.5, false);
+      ctx.stroke();
+
+      // 出力線
+      const output = input1 && input2;
+      ctx.strokeStyle = output ? onColor : offColor;
+      ctx.lineWidth = lw;
+      ctx.beginPath();
+      ctx.moveTo(gateRight + 120, gateCenterY);
+      ctx.lineTo(640, gateCenterY);
+      ctx.stroke();
+
+      ctx.fillStyle = "black";
+      ctx.fillText("出力", 680, gateCenterY);
+      ctx.fillStyle = output ? onColor : offColor;
+      ctx.fillText(output ? "ON" : "OFF", 640, gateCenterY + 40);
+    }
+
+    drawGate(); // 初期描画
+  </script>
+</body>
+</html>
