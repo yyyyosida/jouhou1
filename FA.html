@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>全加算器シミュレータ（FA構成）</title>
+  <style>
+    body { font-family: Arial, sans-serif; text-align: center; }
+    canvas { border: 1px solid #ccc; background: white; }
+    button { margin: 10px; padding: 10px 20px; font-size: 16px; }
+  </style>
+</head>
+<body>
+
+<h1>全加算器シミュレータ（FA×2 + OR構成）</h1>
+<canvas id="adderCanvas" width="1000" height="600"></canvas>
+<br>
+<button onclick="toggleInput(1)">入力A: OFF</button>
+<button onclick="toggleInput(2)">入力B: OFF</button>
+<button onclick="toggleInput(3)">キャリー入力Cin: OFF</button>
+
+<script>
+  let inputA = false;
+  let inputB = false;
+  let inputCin = false;
+
+  const font16 = "16px Arial";
+  const font32 = "32px Arial";
+  const font50 = "50px Arial";
+
+  function toggleInput(n) {
+    if (n === 1) inputA = !inputA;
+    if (n === 2) inputB = !inputB;
+    if (n === 3) inputCin = !inputCin;
+
+    const labels = ["A", "B", "Cin"];
+    [inputA, inputB, inputCin].forEach((val, idx) => {
+      document.querySelectorAll("button")[idx].textContent = `入力${labels[idx]}: ${val ? "ON" : "OFF"}`;
+    });
+
+    drawAdder();
+  }
+
+  function drawAdder() {
+    const canvas = document.getElementById("adderCanvas");
+    const ctx = canvas.getContext("2d");
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    const onColor = "red";
+    const offColor = "gray";
+    const lw = 10;
+
+    const colorA = inputA ? onColor : offColor;
+    const colorB = inputB ? onColor : offColor;
+    const colorCin = inputCin ? onColor : offColor;
+
+    const S1 = inputA ^ inputB;
+    const C1 = inputA && inputB;
+    const SUM = S1 ^ inputCin;
+    const C2 = S1 && inputCin;
+    const CARRY = C1 || C2;
+
+    const colorS1 = S1 ? onColor : offColor;
+    const colorC1 = C1 ? onColor : offColor;
+    const colorC2 = C2 ? onColor : offColor;
+    const colorSUM = SUM ? onColor : offColor;
+    const colorCARRY = CARRY ? onColor : offColor;
+
+    ctx.lineWidth = lw;
+    ctx.strokeStyle = colorA;
+    ctx.beginPath(); ctx.moveTo(80, 180); ctx.lineTo(200, 180); ctx.stroke();
+    ctx.strokeStyle = colorB;
+    ctx.beginPath(); ctx.moveTo(80, 210); ctx.lineTo(200, 210); ctx.stroke();
+    ctx.strokeStyle = colorCin;
+    ctx.beginPath(); ctx.moveTo(80, 370); ctx.lineTo(400, 370); ctx.stroke();
+    ctx.fillStyle = "black";
+    ctx.font = font16;
+    ctx.fillText("A", 50, 150);
+    ctx.fillText("B", 50, 250);
+    ctx.fillText("Cin", 40, 350);
+
+    ctx.strokeStyle = "black"; ctx.lineWidth = 2;
+    ctx.strokeRect(200, 160, 100, 60);
+    ctx.font = font16;
+    ctx.fillText("HA", 230, 195);
+    ctx.strokeRect(400, 320, 100, 60);
+    ctx.fillText("HA", 430, 355);
+
+    // ORゲート → 長方形 + ラベル
+    ctx.strokeRect(550, 160, 100, 60);
+    ctx.fillText("OR", 585, 200);
+
+    ctx.strokeStyle = colorS1;
+    ctx.lineWidth = lw;
+    ctx.beginPath(); ctx.moveTo(300, 210); ctx.lineTo(380, 210); ctx.stroke();
+    ctx.arc(380, 210, 10, 0, 2 * Math.PI); ctx.fillStyle = colorS1; ctx.fill();
+    ctx.beginPath(); ctx.moveTo(380, 210); ctx.lineTo(380, 340); ctx.stroke();
+    ctx.arc(380, 340, 7, 0, 2 * Math.PI); ctx.fillStyle = colorS1; ctx.fill();
+    ctx.beginPath(); ctx.moveTo(380, 340); ctx.lineTo(400, 340); ctx.stroke();
+
+
+
+    ctx.strokeStyle = colorC1;
+    ctx.beginPath(); ctx.moveTo(300, 170); ctx.lineTo(550, 170); ctx.stroke();
+
+    ctx.strokeStyle = colorSUM;
+    ctx.beginPath(); ctx.moveTo(500, 370); ctx.lineTo(690, 370); ctx.stroke();
+
+    ctx.strokeStyle = colorC2;
+    ctx.beginPath(); ctx.moveTo(500, 340); ctx.lineTo(520, 340); ctx.stroke();
+    ctx.arc(520, 340, 7, 0, 2 * Math.PI); ctx.fillStyle = colorC2; ctx.fill();
+    ctx.beginPath(); ctx.moveTo(520, 340); ctx.lineTo(520, 200); ctx.stroke();
+    ctx.arc(520, 200, 7, 0, 2 * Math.PI); ctx.fillStyle = colorC2; ctx.fill();
+    ctx.beginPath(); ctx.moveTo(520, 200); ctx.lineTo(550, 200); ctx.stroke();
+
+
+    ctx.strokeStyle = colorCARRY;
+    ctx.beginPath(); ctx.moveTo(650, 190); ctx.lineTo(690, 190); ctx.stroke();
+
+    ctx.fillStyle = "black";
+    ctx.font = font16;
+    ctx.fillText("SUM(合計)", 780, 350);
+    ctx.fillText("CARRY(桁上がり)", 780, 230);
+
+    ctx.fillStyle = colorSUM;
+    ctx.font = font32;
+    ctx.fillText(SUM ? "1" : "0", 720, 390);
+    ctx.fillStyle = colorCARRY;
+    ctx.fillText(CARRY ? "1" : "0", 720, 220);
+
+    ctx.fillStyle = colorA; ctx.font = font50;
+    ctx.fillText(inputA ? "1" : "0", 100, 500);
+    ctx.fillStyle = "black"; ctx.fillText("+", 140, 500);
+    ctx.fillStyle = colorB; ctx.fillText(inputB ? "1" : "0", 180, 500);
+    ctx.fillStyle = "black"; ctx.fillText("+", 220, 500);
+    ctx.fillStyle = colorCin; ctx.fillText(inputCin ? "1" : "0", 260, 500);
+    ctx.fillStyle = "black"; ctx.fillText("=", 300, 500);
+    ctx.fillStyle = colorCARRY; ctx.fillText(CARRY ? "1" : "0", 340, 500);
+    ctx.fillStyle = colorSUM; ctx.fillText(SUM ? "1" : "0", 390, 500);
+  }
+
+  drawAdder();
+</script>
+
+</body>
+</html>
