@@ -111,11 +111,24 @@
       }
 
       // B入力（共通）
-      drawLine([[0, 40 + 7 * spacing + 40], [60, 40 + 7 * spacing + 40]], b);
+    /* drawLine([[0, 40 + 7 * spacing + 40], [60, 40 + 7 * spacing + 40]], b);
       for (let i = 0; i < 8; i++) {
         const ty = 40 + i * spacing + 20;
         drawLine([[60, 40 + 7 * spacing + 40], [60, ty], [100, ty]], b);
       }
+      */
+      for (let i = 0; i < 8; i++) {
+  const ty = 40 + i * spacing + 20;
+  drawLine([[60, 40 + 7 * spacing + 40], [60, ty], [100, ty]], b);
+
+  // 分岐点に小さな丸を描く
+  ctx.beginPath();
+  ctx.arc(60, ty, 4, 0, 2 * Math.PI);
+  ctx.fillStyle = b ? "red" : "gray";
+  ctx.fill();
+  ctx.strokeStyle = "black";
+  ctx.stroke();
+}
     }
 
     update();
