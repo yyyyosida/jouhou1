@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>1-bit NAND SRラッチシミュレータ</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      text-align: center;
+    }
+    canvas {
+      background-color: white;
+      border: 1px solid #ccc;
+      margin-top: 10px;
+    }
+    .controls {
+      margin: 10px;
+    }
+    .controls label {
+      font-size: 18px;
+      margin: 0 10px;
+    }
+  </style>
+</head>
+<body>
+  <h2>1-bit NANDゲートメモリ（SRラッチ）</h2>
+  <div class="controls">
+    <label><input type="checkbox" id="A" onchange="update()"> A</label>
+    <label><input type="checkbox" id="B" onchange="update()"> B</label>
+  </div>
+  <canvas id="canvas" width="500" height="300"></canvas>
+
+  <script>
+    const canvas = document.getElementById("canvas");
+    const ctx = canvas.getContext("2d");
+
+    const color = v => v ? "red" : "black";
+
+    const gates = {
+      N1: { x: 50, y: 50, label: "NAND1" },
+      N2: { x: 200, y: 50, label: "NAND2" },
+      N4: { x: 200, y: 150, label: "NAND4" },
+      N3: { x: 350, y: 150, label: "NAND3" },
+    };
+
+    let prev_Q = true;
+
+    function drawGate(x, y, label) {
+      ctx.fillStyle = "#eee";
+      ctx.strokeStyle = "black";
+      ctx.lineWidth = 1;
+      ctx.fillRect(x, y, 50, 50);
+      ctx.strokeRect(x, y, 50, 50);
+      ctx.fillStyle = "black";
+      ctx.font = "12px sans-serif";
+      ctx.fillText(label, x + 5, y + 30);
+    }
+
+    function drawLine(path, isOn, width = 2) {
+      ctx.strokeStyle = color(isOn);
+      ctx.lineWidth = width;
+      ctx.beginPath();
+      ctx.moveTo(...path[0]);
+      for (let i = 1; i < path.length; i++) {
+        ctx.lineTo(...path[i]);
+      }
+      ctx.stroke();
+    }
+
+    function drawLED(x, y, isOn) {
+      ctx.fillStyle = isOn ? "red" : "white";
+      ctx.strokeStyle = "black";
+      ctx.beginPath();
+      ctx.arc(x, y, 10, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.stroke();
+    }
+
+    function update() {
+      const a = document.getElementById("A").checked;
+      const b = document.getElementById("B").checked;
+
+      let O1 = !(a && b);
+      let O2 = !(b && O1);
+      let Q = prev_Q;
+      let O4;
+
+      for (let i = 0; i < 5; i++) {
+        O4 = !(O1 && Q);
+        Q = !(O2 && O4);
+      }
+
+      prev_Q = Q;
+
+      // 描画
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      // ゲート
+      for (let key in gates) {
+        const g = gates[key];
+        drawGate(g.x, g.y, g.label);
+      }
+
+      // 線
+      drawLine([[0, 75], [50, 75]], a);  // A1
+      drawLine([[20, 125], [20, 85], [50, 85]], b);  // B1
+      drawLine([[0, 125], [165, 125], [165, 75], [200, 75]], b); // B2
+      drawLine([[100, 60], [200, 60]], O1); // O1-2
+      drawLine([[115, 60], [115, 85], [200, 175]], O1); // O1-4
+      drawLine([[250, 75], [300, 75], [300, 160], [350, 160]], O2); // O2-3
+      drawLine([[250, 180], [350, 180]], O4); // O4-3
+      drawLine([[265, 180], [265, 130], [450, 130]], O4, 3); // Q line
+      drawLine([[400, 185], [410, 185], [410, 210], [180, 210], [180, 185], [200, 185]], Q); // Q4 feedback
+
+      drawLED(460, 130, O4);
+    }
+
+    update();
+  </script>
+</body>
+</html>
