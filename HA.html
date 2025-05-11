@@ -47,33 +47,45 @@
     const colorSum = sum ? onColor : offColor;
     const colorCarry = carry ? onColor : offColor;
 
-    // 入力線とラベル
+    // A入力線と分岐
     ctx.strokeStyle = colorA; ctx.lineWidth = lw;
-    ctx.beginPath(); ctx.moveTo(80, 170); ctx.lineTo(400, 170); ctx.stroke();
-    ctx.strokeStyle = colorB;
-    ctx.beginPath(); ctx.moveTo(80, 370); ctx.lineTo(400, 370); ctx.stroke();
-    ctx.fillStyle = "black"; ctx.font = "16px Arial";
-    ctx.fillText("A", 50, 170);
-    ctx.fillText("B", 50, 370);
+    ctx.beginPath(); ctx.moveTo(80, 200); ctx.lineTo(200, 200); ctx.stroke();
+    ctx.beginPath(); ctx.arc(200, 200, 10, 0, 2 * Math.PI); ctx.fillStyle = colorA; ctx.fill();
+    ctx.beginPath(); ctx.moveTo(200, 200); ctx.lineTo(200, 150); ctx.lineTo(400, 150); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(200, 200); ctx.lineTo(200, 350); ctx.lineTo(390, 350); ctx.stroke();
 
-    // ANDゲート（上）
+    // B入力線と分岐
+    ctx.strokeStyle = colorB;
+    ctx.beginPath(); ctx.moveTo(80, 300); ctx.lineTo(230, 300); ctx.stroke();
+    ctx.beginPath(); ctx.arc(230, 300, 10, 0, 2 * Math.PI); ctx.fillStyle = colorB; ctx.fill();
+    ctx.beginPath(); ctx.moveTo(230, 300); ctx.lineTo(230, 180); ctx.lineTo(400, 180); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(230, 300); ctx.lineTo(230, 390); ctx.lineTo(390, 390); ctx.stroke();
+
+    // 入力ラベル
+    ctx.fillStyle = "black"; ctx.font = "16px Arial";
+    ctx.fillText("A", 50, 200);
+    ctx.fillText("B", 50, 300);
+
+    // ANDゲート（かまぼこ型）
     ctx.strokeStyle = "black"; ctx.lineWidth = 4;
+    const andLeft = 400, andTop = 120, andBottom = 220, andRight = 475;
     ctx.beginPath();
-    ctx.moveTo(400, 120); ctx.lineTo(400, 220);
-    ctx.lineTo(450, 220); ctx.lineTo(450, 120);
-    ctx.closePath(); ctx.stroke();
-    ctx.beginPath();
-    ctx.arc(475, 170, 25, -Math.PI / 2, Math.PI / 2);
+    ctx.moveTo(andLeft, andTop);
+    ctx.lineTo(andLeft, andBottom);
+    ctx.lineTo(andRight - 25, andBottom);
+    ctx.arc(andRight - 25, (andTop + andBottom) / 2, 50, Math.PI / 2, -Math.PI / 2, true);
+    ctx.lineTo(andLeft, andTop);
     ctx.stroke();
+
     ctx.strokeStyle = colorCarry; ctx.lineWidth = lw;
-    ctx.beginPath(); ctx.moveTo(500, 170); ctx.lineTo(680, 170); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(andRight + 25, 170); ctx.lineTo(680, 170); ctx.stroke();
     ctx.fillStyle = "black";
     ctx.fillText("CARRY(桁上がり)", 750, 170);
     ctx.fillStyle = colorCarry;
     ctx.font = "32px Arial";
     ctx.fillText(carry ? "1" : "0", 700, 130);
 
-    // XORゲート（下）
+    // XORゲート（曲線重ね）
     ctx.strokeStyle = "black"; ctx.lineWidth = 4;
     ctx.beginPath();
     ctx.moveTo(400, 320);
@@ -88,7 +100,7 @@
     ctx.bezierCurveTo(540, 340, 540, 400, 400, 420);
     ctx.stroke();
     ctx.strokeStyle = colorSum; ctx.lineWidth = lw;
-    ctx.beginPath(); ctx.moveTo(470, 370); ctx.lineTo(680, 370); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(505, 370); ctx.lineTo(680, 370); ctx.stroke();
     ctx.fillStyle = "black"; ctx.font = "16px Arial";
     ctx.fillText("SUM(合計)", 750, 370);
     ctx.fillStyle = colorSum;
